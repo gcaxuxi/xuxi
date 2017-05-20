@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Closures et Recession | Absolute Zero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Rockafellar的这本凸分析着实不好看。好不容易到了DualCorrespondence那一章，但是发现很多前面的内容并没有深刻的理解，而后面大片大片的章节似乎不停地与凸函数闭包（closure）和回收（recession）函数这些概念纠缠，于是只好回过头去慢慢消化了。
+Closures of Convex Functions这是一个很麻烦的东西，首先我们从凸集的闭包讲起。凸集$C$的clo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Closures et Recession">
+<meta property="og:url" content="http://yoursite.com/2015/09/03/2015-09-02-closures_et_recessions/index.html">
+<meta property="og:site_name" content="Absolute Zero">
+<meta property="og:description" content="Rockafellar的这本凸分析着实不好看。好不容易到了DualCorrespondence那一章，但是发现很多前面的内容并没有深刻的理解，而后面大片大片的章节似乎不停地与凸函数闭包（closure）和回收（recession）函数这些概念纠缠，于是只好回过头去慢慢消化了。
+Closures of Convex Functions这是一个很麻烦的东西，首先我们从凸集的闭包讲起。凸集$C$的clo">
+<meta property="og:updated_time" content="2016-05-29T10:46:41.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Closures et Recession">
+<meta name="twitter:description" content="Rockafellar的这本凸分析着实不好看。好不容易到了DualCorrespondence那一章，但是发现很多前面的内容并没有深刻的理解，而后面大片大片的章节似乎不停地与凸函数闭包（closure）和回收（recession）函数这些概念纠缠，于是只好回过头去慢慢消化了。
+Closures of Convex Functions这是一个很麻烦的东西，首先我们从凸集的闭包讲起。凸集$C$的clo">
+  
+    <link rel="alternative" href="/atom.xml" title="Absolute Zero" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!-- Google Analytics -->
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="/images/cat.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">xuehy</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">The Garden of Zeros</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>標籤</li>
+						
+						
+						<li>關於</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+							<li><a href="/categories/old">过去的旧文章</a></li>
+				        
+							<li><a href="/categories/computervision">计算机视觉</a></li>
+				        
+							<li><a href="/categories/passages">随笔</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/vision/" style="font-size: 10px;">vision</a> <a href="/tags/技术/" style="font-size: 10px;">技术</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">Cogito ergo sum</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">xuehy</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="/images/cat.png" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">xuehy</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">The Garden of Zeros</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+					<li><a href="/categories/old">过去的旧文章</a></li>
+		        
+					<li><a href="/categories/computervision">计算机视觉</a></li>
+		        
+					<li><a href="/categories/passages">随笔</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-2015-09-02-closures_et_recessions" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/09/03/2015-09-02-closures_et_recessions/" class="article-date">
+  	<time datetime="2015-09-03T13:40:58.000Z" itemprop="datePublished">2015-09-03</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Closures et Recession
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+        
+	<div class="article-category tagcloud">
+	<a class="article-category-link" href="/categories/old/">old</a>
+	</div>
+
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Rockafellar的这本凸分析着实不好看。好不容易到了Dual<br>Correspondence那一章，但是发现很多前面的内容并没有深刻的理解，而后面大片大片的章节似乎不停地与凸函数闭包（closure）和回收（recession）函数这些概念纠缠，于是只好回过头去慢慢消化了。</p>
+<h3 id="Closures_of_Convex_Functions"><a href="#Closures_of_Convex_Functions" class="headerlink" title="Closures of Convex Functions"></a>Closures of Convex Functions</h3><p>这是一个很麻烦的东西，首先我们从凸集的闭包讲起。凸集$C$的closure定义如下</p>
+<p>$$<br>\mathrm{cl}\;C = \bigcap {C+\epsilon B | \epsilon &gt; 0}<br>$$</p>
+<p>其中$B$是单位球，于是闭包直观上就是比原来的集合大一点点的那些集合，它们的交集。当然这样的集合有无数个，而且可以越来越接近原来的集合，然而却总是比原来的集合要大。</p>
+<p>有了凸集闭包的概念，于是自然而然就要有凸函数闭包的概念，在凸分析里面，集合和函数有着不可分割的对偶关系，这点在凸函数的定义之初就已经显现。</p>
+<p>凸函数是由它的epigraph所定义的，于是研究函数本身就可以变成研究其epigraph。</p>
+<p>要讲凸函数闭包，突然冒出这么一个概念让人感到很不舒服，于是我们先来谈一谈为什么要有闭包这种东西。这就要先从一种连续性说起——lower<br>semi-continuity.</p>
+<h4 id="lower_semi-continuity"><a href="#lower_semi-continuity" class="headerlink" title="lower semi-continuity"></a>lower semi-continuity</h4><p>一个实值函数$f$，若对每个收敛到$x$的序列$x_1,x_2,\cdots,$，</p>
+<p>$$<br>f(x)\le \lim_{i\rightarrow \infty}f(x_i)<br>$$</p>
+<p>则$f$称为在$x$处lower semi-continuous。</p>
+<p>这个条件也可以写成</p>
+<p>$$<br>f(x)=\lim_{y\rightarrow x}\inf f(y)<br>$$</p>
+<p>同样，可以定义upper semi-continuity,</p>
+<p>$$<br>f(x)=\lim_{y\rightarrow x}\sup f(y)<br>$$</p>
+<p>显然lower semi-continuity（下半连续）和upper<br>semi-continuity（上半连续）共同构成了普通的连续性。</p>
+<p>现在我们以说一下闭包有什么用了，对一个正常凸函数取闭包，可以得到一个lower<br>semi-continuous的函数，并且这个函数只在某些相对边界（relative<br>boundary）点上的函数值被重定义。</p>
+<p>那么为什么lower semi-continuity如此吸引我们呢？</p>
+<p>先来看下面一个定理</p>
+<h4 id="u4E0B_u534A_u8FDE_u7EED_u4E0E_u5C01_u95ED_u6027"><a href="#u4E0B_u534A_u8FDE_u7EED_u4E0E_u5C01_u95ED_u6027" class="headerlink" title="下半连续与封闭性"></a>下半连续与封闭性</h4><p>令$f$为任意的一个$R^n\rightarrow [-\infty,+\infty]$的函数</p>
+<p>那么下面的三条陈述是等价的：</p>
+<ul>
+<li><p>$f$在$R^n$上下半连续</p>
+</li>
+<li><p>对于$\forall \alpha \in R$</p>
+</li>
+</ul>
+<p>$$<br>[x | f(x) \le \alpha]<br>$$</p>
+<p>是封闭的</p>
+<ul>
+<li>$\mathrm{epi}\; f$ 在 $R^{n+1}$中是封闭的。</li>
+</ul>
+<h4 id="closures"><a href="#closures" class="headerlink" title="closures"></a>closures</h4><p>一个凸函数$f$，若它是正常函数，也就是说不存在函数值为$-\infty$的情形，那么的闭包，又可以称为它的lower<br>semi-continuous hull，其epigraph是函数$f$的epigraph的闭包。即</p>
+<p>$$<br>\mathrm{epi}\; (\mathrm{cl}\; f) = \mathrm{cl}\;(\mathrm{epi}\; f)<br>$$</p>
+<p>倘若$f$是反常函数，即存在取值为$-\infty$的情形，那么它的闭包定义为常函数$-\infty$。</p>
+<p>此外还有一个非常重要的性质：无论是正常的凸函数还是反常的凸函数，下面这个式子总是成立的：</p>
+<p>$$<br>f^{**} = \mathrm{cl}\; f<br>$$</p>
+<p>其中$f^*$是$f$的凸共轭(convex conjugate).</p>
+<h4 id="Convex_Conjugate"><a href="#Convex_Conjugate" class="headerlink" title="Convex Conjugate"></a>Convex Conjugate</h4><p>现在开始我们将在原书的各个章节间跳来跳去，刚才提到了凸共轭这个东西，就先得弄明白这是什么，其实很简单一个凸函数$f$，其convex<br>conjugate $f^*$定义如下：</p>
+<p>$$<br>f^<em>(x^</em>) = \sup_{x} {\langle x,x^* \rangle - f(x)}<br>$$</p>
+<p>关于凸共轭还有很多的内容，这里先告一段落，让我们回到函数的闭包上面来。</p>
+<p>如果一个函数$f$满足$\mathrm{cl}\; f =<br>f$，那么该函数则被称为是封闭的（closed）。对于一个正常凸函数，下半连续等价于封闭性。</p>
+<p>闭包操作的意义在于它使得原来的凸函数在很不自然的不连续点处变得“正常”一些，于是在绝大多数情形下，不是一般性，研究一个凸函数，我们可以归约到研究一个封闭的凸函数，也就是其闭包。</p>
+<p>这一点由下面那个极为重要的定理保证：</p>
+<p>令$f$为一个正常凸函数，则$\mathrm{cl}\;<br>f$是一个封闭的正常凸函数，此外，$\mathrm{cl}\;<br>f$与$f$一致，只有在$\mathrm{dom}\; f$的相对边界上有可能不同。</p>
+<h4 id="u51FD_u6570_u95ED_u5305_u7684_u6027_u8D28"><a href="#u51FD_u6570_u95ED_u5305_u7684_u6027_u8D28" class="headerlink" title="函数闭包的性质"></a>函数闭包的性质</h4><p>凸函数的闭包之所以有用，是因为它具有许多性质，这些性质对于凸分析的后续内容有着很重要的作用。</p>
+<p>我们可以将一个函数与其闭包进行比较。</p>
+<p>我们先来回顾一下effective domain（有效定义域）的概念：</p>
+<p>一个凸函数$f$的有效定义域为</p>
+<p>$$<br>\mathrm{dom}\; f={x|f(x)&lt;+\infty}<br>$$</p>
+<p>我们称一个凸函数是proper（正常的），如果它满足两个条件：</p>
+<ul>
+<li><p>$\forall x$，$f(x)&gt;-\infty$</p>
+</li>
+<li><p>$\exists x$，$f(x)&lt;+\infty$</p>
+</li>
+</ul>
+<p>反之称为反常（improper）的凸函数，</p>
+<p>首先来看关于反常凸函数的一个定理：</p>
+<p>如果$f$是一个反常凸函数，则$\forall x\in \mathrm{ri}\; (\mathrm{dom}\; f)$,<br>有$f(x)=-\infty$。</p>
+<p>若$f$是一个正常凸函数，令$x\in \mathrm{ri}\;(\mathrm{dom}\; f)$, 则$\forall y$,</p>
+<p>$$<br>(\mathrm{cl}\; f)(y)=\lim_{\lambda \uparrow 1} f((1-\lambda)x+\lambda y)<br>$$</p>
+<h3 id="Recssion_Cones_and_Recession_Functions"><a href="#Recssion_Cones_and_Recession_Functions" class="headerlink" title="Recssion Cones and Recession Functions"></a>Recssion Cones and Recession Functions</h3><h4 id="Recession_Cone"><a href="#Recession_Cone" class="headerlink" title="Recession Cone"></a>Recession Cone</h4><p>一个非空凸集$C\in R^n$的回收锥(Recession cone)定义为：</p>
+<p>$$<br>0^+C = {y|x+\lambda y\in C,\forall \lambda \ge 0, \forall x\in C}<br>$$</p>
+<p>直观上来看，回收锥中的每一个非零点都可以看成是一个方向向量，使得对凸集$C$中的每个点，沿着这些方向的射线全部包含在凸集$C$中。</p>
+<p>另外显然原点永远都是回收锥里面的元素。</p>
+<p>Recession Cone之所以名字里有一个Cone存在，是因为$0^+C$是包含原点的一个凸锥。</p>
+<p>而且$0^+C$也可以看成是所有满足$C + y \subset C$的向量$y$的集合。</p>
+<h4 id="Recession_functions"><a href="#Recession_functions" class="headerlink" title="Recession functions"></a>Recession functions</h4><p>对于一个凸函数$f$，它的epigraph $\mathrm{epi}\; f$显然也有对应的recession cone $0^+(\mathrm{epi}\; f)$。</p>
+<p>$0^+(\mathrm{epi}\; f)$显然对应着一个函数，这个函数称为$f$的recession function，记作$f0^+$。</p>
+<p>$(y,\nu) \in 0^+(\mathrm{epi}\; f)$ 当且仅当 </p>
+<p>$$<br>\forall (x,\mu) \in \mathrm{epi}\; f, \lambda \ge 0, (x,\mu) + \lambda (y,\nu) = (x + \lambda y, \mu + \lambda \nu) \in 0^+(\mathrm{epi}\; f)<br>$$</p>
+<p>所以有</p>
+<p>$$<br>f(x + \lambda y) \le \mu + \lambda \nu<br>$$</p>
+<p>因为</p>
+<p>$$<br>f(x) \le \mu<br>$$</p>
+<p>所以</p>
+<p>$$<br>\forall x, f(x + \lambda y) \le f(x) + \lambda \nu<br>$$</p>
+<p>上面那个式子稍作改动可以得到</p>
+<p>$$<br>\nu \ge \frac{f(x + \lambda y) - f(x)}{\lambda}<br>$$</p>
+<p>所以</p>
+<p>$$<br>\forall x\in \mathrm{dom}\; f, (f0^+)(y) = \sup_{\lambda &gt; 0} \frac{f(x + \lambda y) - f(x)}{\lambda}<br>$$</p>
+<p>由之前关于集合recession cone的性质可以得到</p>
+<p>$$<br>(f0^+)(y) = \sup {f(x + y) - f(x) | x\in \mathrm{dom}\; f}<br>$$</p>
+<p>下面有一个非常重要的性质：</p>
+<p>首先回顾一下函数的右标量积(right scalar multiplication):</p>
+<p>$$<br>f(\lambda x) = \lambda f(\lambda^{-1} x)<br>$$</p>
+<p>如果$f$是一个封闭的正常凸函数，那么，</p>
+<p>$$<br>\forall y\in \mathrm{dom}\; f, (f0^+)(y) = \lim_{\lambda \downarrow 0} (f\lambda)(y)<br>$$</p>
+<p>如果$0 \in \mathrm{dom}\; f$, 则对$\forall y\in R^n$都成立。</p>
+<h3 id="Some_Closedness_Criteria"><a href="#Some_Closedness_Criteria" class="headerlink" title="Some Closedness Criteria"></a>Some Closedness Criteria</h3><p><em>一个封闭的凸集在线性变换之后是否仍然保持封闭性呢？</em></p>
+<p>我们已经知道对于凸集$C$和线性变换$A$，相对内部</p>
+<p>$$<br>\mathrm{ri}\; (AC) = A(\mathrm{ri}\; C)<br>$$</p>
+<p>然而对于闭包，则只有</p>
+<p>$$<br>\mathrm{cl}\; (AC) \supset A(\mathrm{cl}\; C)<br>$$</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/02/18/revealjs-md/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          使用Markdown来制作幻灯片
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/08/03/2015-08-03-convex_functions/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Convex Functions</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share_jia">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到: &nbsp; </span>
+		<a class="jiathis_button_facebook"></a> 
+    <a class="jiathis_button_twitter"></a>
+    <a class="jiathis_button_plus"></a> 
+    <a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+    <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+
+
+
+
+
+
+<!-- 多说评论框 start -->
+     <div class="ds-thread" data-thread-key="2015/09/03/2015-09-02-closures_et_recessions/" data-title="Closures et Recession" data-url="http://yoursite.com/2015/09/03/2015-09-02-closures_et_recessions/"></div>
+     <!-- 多说评论框 end -->
+     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+     <script type="text/javascript">
+     var duoshuoQuery = {short_name:"hyxue-zeros"};
+     	 (function() {
+			var ds = document.createElement('script');
+			       ds.type = 'text/javascript';ds.async = true;
+			       	       	 ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+					 	  ds.charset = 'UTF-8';
+						  	       (document.getElementsByTagName('head')[0]
+									 || document.getElementsByTagName('body')[0]).appendChild(ds);
+									    })();
+										</script>
+										<!-- 多说公共JS代码 end -->
+										</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-right">
+    		&copy; 2016 xuehy
+    	</div>
+     
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js" type="text/javascript"></script>
+<script src="/js/main.js" type="text/javascript"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

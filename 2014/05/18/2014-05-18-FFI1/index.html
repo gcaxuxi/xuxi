@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Real My Haskell (2) | Absolute Zero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Haskell使用外部C函数 (1)  虽然C语言的编程方式和我的思考方式有着很多冲突，但是毕竟人家是很流行的语言，很多库都是在C/C++下实现的，要想用Haskell做日常的各种事情，少不了这些库的帮助，但是重新写这些库既浪费时间又效率低下，所以许许多多Haskell爱好者们开发出了FFI这个东西，使得Haskell能够和其他语言混合编程（调用其他语言的接口）。
+由于目前C++的FFI不够完善，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Real My Haskell (2)">
+<meta property="og:url" content="http://yoursite.com/2014/05/18/2014-05-18-FFI1/index.html">
+<meta property="og:site_name" content="Absolute Zero">
+<meta property="og:description" content="Haskell使用外部C函数 (1)  虽然C语言的编程方式和我的思考方式有着很多冲突，但是毕竟人家是很流行的语言，很多库都是在C/C++下实现的，要想用Haskell做日常的各种事情，少不了这些库的帮助，但是重新写这些库既浪费时间又效率低下，所以许许多多Haskell爱好者们开发出了FFI这个东西，使得Haskell能够和其他语言混合编程（调用其他语言的接口）。
+由于目前C++的FFI不够完善，">
+<meta property="og:updated_time" content="2016-05-29T10:35:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Real My Haskell (2)">
+<meta name="twitter:description" content="Haskell使用外部C函数 (1)  虽然C语言的编程方式和我的思考方式有着很多冲突，但是毕竟人家是很流行的语言，很多库都是在C/C++下实现的，要想用Haskell做日常的各种事情，少不了这些库的帮助，但是重新写这些库既浪费时间又效率低下，所以许许多多Haskell爱好者们开发出了FFI这个东西，使得Haskell能够和其他语言混合编程（调用其他语言的接口）。
+由于目前C++的FFI不够完善，">
+  
+    <link rel="alternative" href="/atom.xml" title="Absolute Zero" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!-- Google Analytics -->
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="/images/cat.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">xuehy</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">The Garden of Zeros</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>標籤</li>
+						
+						
+						<li>關於</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+							<li><a href="/categories/old">过去的旧文章</a></li>
+				        
+							<li><a href="/categories/computervision">计算机视觉</a></li>
+				        
+							<li><a href="/categories/passages">随笔</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/vision/" style="font-size: 10px;">vision</a> <a href="/tags/技术/" style="font-size: 10px;">技术</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">Cogito ergo sum</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">xuehy</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="/images/cat.png" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">xuehy</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">The Garden of Zeros</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+					<li><a href="/categories/old">过去的旧文章</a></li>
+		        
+					<li><a href="/categories/computervision">计算机视觉</a></li>
+		        
+					<li><a href="/categories/passages">随笔</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-2014-05-18-FFI1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2014/05/18/2014-05-18-FFI1/" class="article-date">
+  	<time datetime="2014-05-17T16:00:00.000Z" itemprop="datePublished">2014-05-18</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Real My Haskell (2)
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+        
+	<div class="article-category tagcloud">
+	<a class="article-category-link" href="/categories/Haskell/">Haskell</a>
+	</div>
+
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Haskell_u4F7F_u7528_u5916_u90E8C_u51FD_u6570__281_29"><a href="#Haskell_u4F7F_u7528_u5916_u90E8C_u51FD_u6570__281_29" class="headerlink" title="Haskell使用外部C函数 (1)"></a>Haskell使用外部C函数 (1)</h2><p>  虽然C语言的编程方式和我的思考方式有着很多冲突，但是毕竟人家是很流行的语言，很多库都是在C/C++下实现的，<br>要想用Haskell做日常的各种事情，少不了这些库的帮助，但是重新写这些库既浪费时间又效率低下，<br>所以许许多多Haskell爱好者们开发出了FFI这个东西，使得Haskell能够和其他语言混合编程（调用其他语言的接口）。</p>
+<p>由于目前C++的FFI不够完善，所以我们还是讲讲如何使用外部的C库。<br>用Haskell自然的思维方式编程，结合C语言各种强大的工具库，还有什么事情做不了呢？</p>
+<p>事实上，在Haskell中使用C语言写成的函数非常简单,<br>在Haskell代码中加入这样一行：</p>
+<pre><code>foreign import ccall &quot;m.h f&quot; c_f :: CDouble -&gt; CDouble
+</code></pre><p>就可以从名为”m.h”的头文件中导入一个函数f</p>
+<pre><code>double f(double _)
+</code></pre><p>并且我们把这个函数重命名为c_f,它具有类型CDouble -&gt; CDouble<br>CDouble是Haskell中对应C中double的类型，Haskell与C之间许多类型都作了这样的处理。</p>
+<p>事实上，如果对应C函数使用的类型在Haskell中已经有对应的定义，那么在Haskell中使用C函数会非常简单，<br>否则的话，需要自己定义对应的数据类型，不过我们有工具hcs2hs。</p>
+<p>因此，接下来我们分两种情形考察如何在Haskell中使用外部的C函数。</p>
+<p>首先我们要使用的C函数声明如下（”m.h”）：</p>
+<pre><code>double f(double x);
+double pf(double *x);
+
+double af(double *x,int N);
+
+typedef struct
+{
+int a;
+int b; 
+int c;
+} mystruct;
+
+int sum(mystruct *ms);
+</code></pre><p>定义为（”m.c”）:</p>
+<pre><code>double f(double x)
+{
+double y = x*x+2*x+1;
+return y;
+}
+
+double pf(double *x)
+{
+return *x + 1;
+}
+#include &quot;m.h&quot;
+double af(double *x, int N)
+{
+int i = 0;
+double sum = 0.0;
+for(i = 0 ;i &lt; N; i++)
+{
+sum += x[i];
+}
+return sum;
+}
+
+int sum(mystruct * ms)
+{
+return ms-&gt;a+ms-&gt;b+ms-&gt;c;
+}
+</code></pre><h3 id="u7B80_u5355_u7C7B_u578B"><a href="#u7B80_u5355_u7C7B_u578B" class="headerlink" title="简单类型"></a>简单类型</h3><p>首先我们不管结构体<strong>mystruct</strong>和函数<strong>sum</strong>,因为这些是需要自己处理的类型，</p>
+<p>首先是用<strong>foreign import ccall</strong>导入这些函数并重命名，<br><strong>Ptr</strong>是C指针类型在Haskell中的对应，</p>
+<pre><code>foreign import ccall unsafe &quot;m.h f&quot; c_f :: CDouble -&gt; CDouble
+foreign import ccall unsafe &quot;m.h pf&quot; c_pf :: Ptr CDouble -&gt; CDouble
+foreign import ccall unsafe &quot;m.h af&quot; c_af :: Ptr CDouble -&gt; CInt -&gt; CDouble
+</code></pre><p>之后要做“本土化”工作，即写一个Haskell函数能够接受Haskell的数据类型并且调用这些外部函数计算得到结果。</p>
+<p>需要注意的是，<br><strong>alloca</strong>和<strong>allocaArray</strong>这两个函数在局部范围内生成指针类型（用后即毁），<br><strong>poke</strong>函数能够将数据装入指针<strong>Ptr</strong>。</p>
+<pre><code>fastf :: Double -&gt; IO Double
+fastf x = return $ realToFrac (c_f (realToFrac x))    
+
+-- passing pointers to C function
+fastpf :: Double -&gt; IO Double
+fastpf x = alloca $ \ptr -&gt; do 
+poke ptr $ realToFrac x        -- set memory of ptr to x
+return $ realToFrac $ c_pf ptr
+
+-- passing arrays
+fastaf :: [Double] -&gt; IO Double
+fastaf x = allocaArray (length x) $ \ptr -&gt; do
+pokeArray ptr $ map realToFrac x
+return $ realToFrac $ c_af ptr $ fromIntegral (length x)
+</code></pre><p>最后在main中使用就行了，全部代码综合在一起如下：</p>
+<pre><code>{-# LANGUAGE ForeignFunctionInterface #-}
+import Foreign
+import Foreign.C.Types
+import Foreign.Ptr
+
+foreign import ccall unsafe &quot;m.h f&quot; c_f :: CDouble -&gt; CDouble
+foreign import ccall unsafe &quot;m.h pf&quot; c_pf :: Ptr CDouble -&gt; CDouble
+foreign import ccall unsafe &quot;m.h af&quot; c_af :: Ptr CDouble -&gt; CInt -&gt; CDouble
+
+
+fastf :: Double -&gt; IO Double
+fastf x = return $ realToFrac (c_f (realToFrac x))    
+
+-- passing pointers to C function
+fastpf :: Double -&gt; IO Double
+fastpf x = alloca $ \ptr -&gt; do 
+poke ptr $ realToFrac x        -- set memory of ptr to x
+return $ realToFrac $ c_pf ptr
+
+-- passing arrays
+fastaf :: [Double] -&gt; IO Double
+fastaf x = allocaArray (length x) $ \ptr -&gt; do
+pokeArray ptr $ map realToFrac x
+return $ realToFrac $ c_af ptr $ fromIntegral (length x)
+
+main = do
+x &lt;- fastf 12.0
+y &lt;- fastpf 10.0
+z &lt;- fastaf [1..10]
+print x
+print y
+print z
+</code></pre><p>最后</p>
+<pre><code>gcc -c m.c
+ghc m.o *.hs
+</code></pre><p>就可以完成编译了。</p>
+<h3 id="u7ED3_u6784_u4F53"><a href="#u7ED3_u6784_u4F53" class="headerlink" title="结构体"></a>结构体</h3><p>要处理结构体，就得使用hcs2hs这个工具，首先，<br>和之前一样，加入</p>
+<pre><code>foreign import ccall unsafe &quot;m.h sum&quot; c_sum :: StructPtr -&gt; CInt 
+</code></pre><p>再自己定义Haskell中对应mystruct的类型及其指针</p>
+<pre><code>data Struct = Struct {a :: Int, b::Int ,c::Int}
+type StructPtr = Ptr Struct
+</code></pre><p>接下来，在使用这个数据类型<strong>Struct</strong>之前，<br>我们必须定义对应的<strong>poke</strong>之类的函数，把它作为<strong>Storable</strong>的类型类实例化：</p>
+<pre><code>#include &quot;m.h&quot;
+#let alignment t = &quot;%lu&quot;, (unsigned long)offsetof(struct {char x__; t (y__); }, y__)
+instance Storable Struct where
+sizeOf _ = (#size mystruct) 
+alignment _ = #{alignment mystruct} 
+peek ptr = do
+a&apos; &lt;- (#peek mystruct,a) ptr
+b&apos; &lt;- (#peek mystruct,b) ptr
+c&apos; &lt;- (#peek mystruct,c) ptr
+return Struct {a = a&apos;,b = b&apos;,c = c&apos;}
+poke ptr (Struct a&apos; b&apos; c&apos;) = do
+(#poke mystruct, a) ptr a&apos;
+(#poke mystruct, b) ptr b&apos;
+(#poke mystruct, c) ptr c&apos;
+</code></pre><p>注意到上面的代码中有很多<strong>#xx</strong>的内容，这是hcs2hs的宏，我们不要管，只要知道这么用就行了，<br>当然想知道去查doc就行了。<br>还有</p>
+<pre><code>#include &quot;m.h&quot;
+</code></pre><p>显然是C代码，因此这个文件不能直接用ghc处理，<br>必须先用<strong>hcs2hs</strong>处理得到一个<strong>.hs</strong>文件，<br>之后才能和之前一样编译。</p>
+<p>当然我们得先把整个代码补全：</p>
+<pre><code>{-# LANGUAGE ForeignFunctionInterface #-}
+import Foreign
+import Foreign.C.Types
+import Foreign.Ptr
+
+foreign import ccall unsafe &quot;m.h f&quot; c_f :: CDouble -&gt; CDouble
+foreign import ccall unsafe &quot;m.h pf&quot; c_pf :: Ptr CDouble -&gt; CDouble
+foreign import ccall unsafe &quot;m.h af&quot; c_af :: Ptr CDouble -&gt; CInt -&gt; CDouble
+foreign import ccall unsafe &quot;m.h sum&quot; c_sum :: StructPtr -&gt; CInt 
+
+fastf :: Double -&gt; Double
+fastf x = realToFrac (c_f (realToFrac x))    
+
+-- passing pointers to C function
+fastpf :: Double -&gt; IO Double
+fastpf x = alloca $ \ptr -&gt; do 
+poke ptr $ realToFrac x        -- set memory of ptr to x
+return $ realToFrac $ c_pf ptr
+
+-- passing arrays
+fastaf :: [Double] -&gt; IO Double
+fastaf x = allocaArray (length x) $ \ptr -&gt; do
+pokeArray ptr $ map realToFrac x
+return $ realToFrac $ c_af ptr $ fromIntegral (length x)
+
+-- how about structs
+
+data Struct = Struct {a :: Int, b::Int ,c::Int}
+type StructPtr = Ptr Struct
+
+-- We need to deal with the struct ourselves
+-- make it an instance of Storable so peek and poke can be defined
+-- but it is too trouble to do by hand 
+-- so we can only use hsc2hs to deal with C and haskell mixes.
+-- (The preprocess)
+-- #xx are macros that are used by hsc2hs
+#include &quot;m.h&quot;
+#let alignment t = &quot;%lu&quot;, (unsigned long)offsetof(struct {char x__; t (y__); }, y__)
+instance Storable Struct where
+sizeOf _ = (#size mystruct) 
+alignment _ = #{alignment mystruct} 
+peek ptr = do
+a&apos; &lt;- (#peek mystruct,a) ptr
+b&apos; &lt;- (#peek mystruct,b) ptr
+c&apos; &lt;- (#peek mystruct,c) ptr
+return Struct {a = a&apos;,b = b&apos;,c = c&apos;}
+poke ptr (Struct a&apos; b&apos; c&apos;) = do
+(#poke mystruct, a) ptr a&apos;
+(#poke mystruct, b) ptr b&apos;
+(#poke mystruct, c) ptr c&apos;
+
+fastsum :: Struct -&gt; IO Int
+fastsum x = alloca $ \ptr -&gt; do 
+poke ptr x        -- set memory of ptr to x
+return $ fromIntegral $ c_sum ptr
+
+main = do
+x &lt;- fastf 12.0
+y &lt;- fastpf 10.0
+z &lt;- fastaf [1..10]
+w &lt;- fastsum $ Struct {a=1,b=2,c=3}
+print x
+print y    
+print z
+print w
+</code></pre><h2 id="u603B_u7ED3"><a href="#u603B_u7ED3" class="headerlink" title="总结"></a>总结</h2><p>以上的内容，涵盖了基本的Haskell的外部C函数接口，<br>基于这些东西，我们可以将C的库转化为Haskell的，当然如果你不想去写package，<br>也可以在你的实际中按需转化。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/05/19/2014-05-19-FFI2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Real My Haskell (3)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/05/11/2014-05-11-autodiff/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Dual Number &amp; Automatic Differentiation</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share_jia">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到: &nbsp; </span>
+		<a class="jiathis_button_facebook"></a> 
+    <a class="jiathis_button_twitter"></a>
+    <a class="jiathis_button_plus"></a> 
+    <a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+    <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+
+
+
+
+
+
+<!-- 多说评论框 start -->
+     <div class="ds-thread" data-thread-key="2014/05/18/2014-05-18-FFI1/" data-title="Real My Haskell (2)" data-url="http://yoursite.com/2014/05/18/2014-05-18-FFI1/"></div>
+     <!-- 多说评论框 end -->
+     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+     <script type="text/javascript">
+     var duoshuoQuery = {short_name:"hyxue-zeros"};
+     	 (function() {
+			var ds = document.createElement('script');
+			       ds.type = 'text/javascript';ds.async = true;
+			       	       	 ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+					 	  ds.charset = 'UTF-8';
+						  	       (document.getElementsByTagName('head')[0]
+									 || document.getElementsByTagName('body')[0]).appendChild(ds);
+									    })();
+										</script>
+										<!-- 多说公共JS代码 end -->
+										</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-right">
+    		&copy; 2016 xuehy
+    	</div>
+     
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js" type="text/javascript"></script>
+<script src="/js/main.js" type="text/javascript"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

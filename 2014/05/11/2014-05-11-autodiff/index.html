@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Dual Number &amp; Automatic Differentiation | Absolute Zero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这些天发现一个很好玩的东西——dual number，二元数。同时还发现了许多新大陆——非标准分析和SDG（综合微分几何）……决定先记录下来。
+二元数看起来它和复数差不多，都是人为创造的数系，但是这种数只能形成环的结构，无法成为数域，因此它无法像实数复数那样拥有强大的力量，并且成为分析的基础。不过这种数有着一个非常奇妙的用处，也正是这个用处把我吸引了过来，那就是它可以用来计算函数在某一点处的导数。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dual Number & Automatic Differentiation">
+<meta property="og:url" content="http://yoursite.com/2014/05/11/2014-05-11-autodiff/index.html">
+<meta property="og:site_name" content="Absolute Zero">
+<meta property="og:description" content="这些天发现一个很好玩的东西——dual number，二元数。同时还发现了许多新大陆——非标准分析和SDG（综合微分几何）……决定先记录下来。
+二元数看起来它和复数差不多，都是人为创造的数系，但是这种数只能形成环的结构，无法成为数域，因此它无法像实数复数那样拥有强大的力量，并且成为分析的基础。不过这种数有着一个非常奇妙的用处，也正是这个用处把我吸引了过来，那就是它可以用来计算函数在某一点处的导数。">
+<meta property="og:updated_time" content="2016-05-30T05:37:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dual Number & Automatic Differentiation">
+<meta name="twitter:description" content="这些天发现一个很好玩的东西——dual number，二元数。同时还发现了许多新大陆——非标准分析和SDG（综合微分几何）……决定先记录下来。
+二元数看起来它和复数差不多，都是人为创造的数系，但是这种数只能形成环的结构，无法成为数域，因此它无法像实数复数那样拥有强大的力量，并且成为分析的基础。不过这种数有着一个非常奇妙的用处，也正是这个用处把我吸引了过来，那就是它可以用来计算函数在某一点处的导数。">
+  
+    <link rel="alternative" href="/atom.xml" title="Absolute Zero" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!-- Google Analytics -->
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="/images/cat.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">xuehy</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">The Garden of Zeros</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>標籤</li>
+						
+						
+						<li>關於</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+							<li><a href="/categories/old">过去的旧文章</a></li>
+				        
+							<li><a href="/categories/computervision">计算机视觉</a></li>
+				        
+							<li><a href="/categories/passages">随笔</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/vision/" style="font-size: 10px;">vision</a> <a href="/tags/技术/" style="font-size: 10px;">技术</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">Cogito ergo sum</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">xuehy</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="/images/cat.png" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">xuehy</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">The Garden of Zeros</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+					<li><a href="/categories/old">过去的旧文章</a></li>
+		        
+					<li><a href="/categories/computervision">计算机视觉</a></li>
+		        
+					<li><a href="/categories/passages">随笔</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-2014-05-11-autodiff" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2014/05/11/2014-05-11-autodiff/" class="article-date">
+  	<time datetime="2014-05-11T06:20:58.000Z" itemprop="datePublished">2014-05-11</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Dual Number &amp; Automatic Differentiation
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+        
+	<div class="article-category tagcloud">
+	<a class="article-category-link" href="/categories/old/">old</a>
+	</div>
+
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这些天发现一个很好玩的东西——dual number，二元数。同时还发现了许多新大陆——非标准分析和SDG（综合微分几何）……决定先记录下来。</p>
+<p>二元数看起来它和复数差不多，都是人为创造的数系，但是这种数只能形成环的结构，无法成为数域，因此它无法像实数复数那样拥有强大的力量，并且成为分析的基础。不过这种数有着一个非常奇妙的用处，也正是这个用处把我吸引了过来，那就是它可以用来计算函数在某一点处的导数。</p>
+<p>二元数，不同于实数之处在于其引入了一个幂零（nilpotent）元$\varepsilon$,这个元素就像虚数单位一样有着新的特性，$\varepsilon^{2}=0$，任意一个二元数可以表示为$a+b\varepsilon$,$a,b\in\mathbb{R}$。于是在这性质之上，可以得到一系列二元数的运算法则：</p>
+<ol>
+<li><p>加法： $$(a+a’\varepsilon)+(b+b’\varepsilon)=((a+b)+(a’+b’)\varepsilon)$$</p>
+</li>
+<li><p>减法： $$(a+a’\varepsilon)-(b+b’\varepsilon)=((a-b)+(a’-b’)\varepsilon)$$</p>
+</li>
+<li><p>乘法： $$(a+a’\varepsilon)\cdot (b+b’\varepsilon)=a\cdot b+(ab’+a’b)\varepsilon$$</p>
+</li>
+</ol>
+<p>事实上，我们可以认为<br>$$<br>\varepsilon=<br>\begin{pmatrix}<br>0 &amp; 1 \<br>0 &amp; 0<br>\end{pmatrix}<br>$$</p>
+<p>于是所有的运算法则都可以通过矩阵计算得到。</p>
+<p>除法可以这样推导：</p>
+<p>$$<br>\begin{aligned}<br>\frac{a+b\varepsilon}{c+d\varepsilon} &amp; =\frac{(a+b\varepsilon)(c-d\varepsilon)}{c^{2}}\<br> &amp; =\frac{a}{c}+\frac{bc-ad}{c^{2}}\varepsilon<br>\end{aligned}<br>$$</p>
+<p>在二元数环上，我们可以定义各种初等函数运算，这些运算都可以通过二元数的基本定义得到，比如：</p>
+<ul>
+<li><p>$$\sin(a+b\varepsilon)=\sin(a)+b\cdot \cos(a)\varepsilon$$</p>
+</li>
+<li><p>$$\cos(a+b\varepsilon)=\cos(a)-b\cdot \sin(a)\varepsilon$$</p>
+</li>
+<li><p>$$\exp(a+b\varepsilon)=\exp(a)+b\cdot \exp(a)\varepsilon$$</p>
+</li>
+<li><p>$$\log(a+b\varepsilon)=\log(a)+(b/a)\varepsilon)$$</p>
+</li>
+</ul>
+<p>其他初等函数的推导大同小异。</p>
+<p>令$e=\varepsilon$，则对于任意可微的函数$f(x)$，它在$x=x_{0}$处的导数和它在二元数上的函数值相关，</p>
+<p>即</p>
+<p>$$f( x_{0} +e )=f(x_{0})+f’(x_{0})e$$</p>
+<p>这个性质使得我们能够将求导直接变为求值，而无需先对目标函数进行符号求导，也避免使用不精确的数值导数来替代真正的导数值。</p>
+<p>比如$$f(x)=x\cdot sin(x)\cdot exp(x+1)$$，</p>
+<p>考虑$$x=1$$，</p>
+<span>$$\begin{aligned}
+f(1+e) &amp; =(1+e)\cdot \sin(1+e)\cdot \exp(2+e)\\
+ &amp; =(1+\varepsilon)\cdot \sin(1+\varepsilon)\cdot \exp(2+\varepsilon)\\
+ &amp; =(1+\varepsilon)\cdot (\sin(1)+\cos(1)\varepsilon)\cdot (\exp(2)+\exp(2)\varepsilon)
+ \end{aligned}$$</span><!-- Has MathJax -->
+<p>$$ =(\sin(1)+(\sin(1)+\cos(1))\varepsilon)\cdot (\exp(2)+\exp(2)\varepsilon)$$<br>$$ =(\sin(1)\cdot \exp(2)+(\sin(1)\cdot \exp(2)+(\sin(1)+\cos(1))\cdot \exp(2)\varepsilon)$$<br>$$  \thickapprox6.217676312367968+16.42767667317721\varepsilon$$</p>
+<p>$$<br>f(1) \approx 6.217676312367968$$<br>$$f’(1) \approx 16.42767667317721$$</p>
+<p>这就是所谓的自动微分（auto differentiation），我们可以写一个程序来自动计算，这正是自动微分的用途所在。相比于符号微分之后再求值，它可以减少计算量；相对于各种数值微分，又是精确的（对于计算机而言）。<br>我们这就写个程序来自动计算，实践证明这种东西（类似数学定义的东西）用Haskell写最为方便了：</p>
+<pre><code>data Dual a = D a a deriving (Show, Eq)
+
+instance Num a =&gt; Num (Dual a) where   
+  fromInteger i = D (fromInteger i) 0   
+  (D a a&apos;) + (D b b&apos;) = D (a+b) (a&apos;+b&apos;)   
+  (D a a&apos;) - (D b b&apos;) = D (a-b) (a&apos;-b&apos;)   
+  (D a a&apos;) * (D b b&apos;) = D (a*b) (a&apos;*b+a*b&apos;)   
+  abs (D a a&apos;) = D (abs a) (a&apos; * (signum a))    
+
+instance Fractional a =&gt; Fractional (Dual a) where   
+  fromRational a = D (fromRational a) 0   
+  (D a a&apos;) / (D b b&apos;) = D (a/b) ((a&apos;*b-a*b&apos;)/b/b)  
+
+instance Floating a =&gt; Floating (Dual a) where   
+  sin (D u u&apos;) = D (sin u) (u&apos; * (cos u))   
+  cos (D u u&apos;) = D (cos u) (-u&apos; * (sin u))   
+  exp (D u u&apos;) = D (exp u) (u&apos; * (exp u))   
+  log (D u u&apos;) = D (log u) (u&apos;/u)   
+  pi = D pi 0    
+  e = D 0 1
+</code></pre><p>我们先定义二元数及其计算规则，接下来定义函数：</p>
+<pre><code>f :: Floating a =&gt; a -&gt; a f x = x * sin(x) * exp (x+1) 
+</code></pre><p>计算：</p>
+<pre><code>&gt;f(1+e)
+D 6.217676312367968 16.427676673177206
+</code></pre><p>至于多变量函数，可以由单变量很简单的进行推广。</p>
+<p>dual number似乎和非标准分析学中的无穷小量（infinitesimal)有关，事实上可以将$$\varepsilon$$看成是无穷小单位的一阶近似。非标准分析学将无穷量正式地引入了数域，将实数集扩充为超实数集，并且确保了逻辑上的严密性，这是一个很年轻的数学分支，不过似乎也很默默无闻。无穷小量早在微积分创立之初出现，随后由于一系列的逻辑问题，被宣判死亡，直到上个世纪下半叶，被某些数学家复活了，出现了非标准分析这一分支，大多数数学家，科学家，学生都是在传统分析的框架下长大的，也许很多人从未听说过这一领域，就如同我一样，刚刚知道这个东西，传统的概念已经根深蒂固，成为一种常识和习惯，往往就再也难以改变，至于非标准分析能否被广泛接受，就留给时间去考虑吧。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/05/18/2014-05-18-FFI1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Real My Haskell (2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/05/02/2014-05-02-lie1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">李群与李代数1</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share_jia">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到: &nbsp; </span>
+		<a class="jiathis_button_facebook"></a> 
+    <a class="jiathis_button_twitter"></a>
+    <a class="jiathis_button_plus"></a> 
+    <a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+    <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+
+
+
+
+
+
+<!-- 多说评论框 start -->
+     <div class="ds-thread" data-thread-key="2014/05/11/2014-05-11-autodiff/" data-title="Dual Number &amp; Automatic Differentiation" data-url="http://yoursite.com/2014/05/11/2014-05-11-autodiff/"></div>
+     <!-- 多说评论框 end -->
+     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+     <script type="text/javascript">
+     var duoshuoQuery = {short_name:"hyxue-zeros"};
+     	 (function() {
+			var ds = document.createElement('script');
+			       ds.type = 'text/javascript';ds.async = true;
+			       	       	 ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+					 	  ds.charset = 'UTF-8';
+						  	       (document.getElementsByTagName('head')[0]
+									 || document.getElementsByTagName('body')[0]).appendChild(ds);
+									    })();
+										</script>
+										<!-- 多说公共JS代码 end -->
+										</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-right">
+    		&copy; 2016 xuehy
+    	</div>
+     
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js" type="text/javascript"></script>
+<script src="/js/main.js" type="text/javascript"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>Structured SVM (2) Training | Absolute Zero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Table of Contents
+
+
+1. Subgradient descent SSVM Training
+2. &amp;#x7EA6;&amp;#x675F;&amp;#x4E8C;&amp;#x6B21;&amp;#x4F18;&amp;#x5316;
+3. Dual SSVM
+
+
+
+
+
+1 Subgradient descent SSVM Training
+
+
+&amp;#x524D;&amp;#x9762;&amp;#x6211;&amp;#x4EEC;&amp;#x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Structured SVM (2) Training">
+<meta property="og:url" content="http://yoursite.com/2016/06/10/SSVM2/index.html">
+<meta property="og:site_name" content="Absolute Zero">
+<meta property="og:description" content="Table of Contents
+
+
+1. Subgradient descent SSVM Training
+2. &amp;#x7EA6;&amp;#x675F;&amp;#x4E8C;&amp;#x6B21;&amp;#x4F18;&amp;#x5316;
+3. Dual SSVM
+
+
+
+
+
+1 Subgradient descent SSVM Training
+
+
+&amp;#x524D;&amp;#x9762;&amp;#x6211;&amp;#x4EEC;&amp;#x">
+<meta property="og:updated_time" content="2016-06-10T13:07:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Structured SVM (2) Training">
+<meta name="twitter:description" content="Table of Contents
+
+
+1. Subgradient descent SSVM Training
+2. &amp;#x7EA6;&amp;#x675F;&amp;#x4E8C;&amp;#x6B21;&amp;#x4F18;&amp;#x5316;
+3. Dual SSVM
+
+
+
+
+
+1 Subgradient descent SSVM Training
+
+
+&amp;#x524D;&amp;#x9762;&amp;#x6211;&amp;#x4EEC;&amp;#x">
+  
+    <link rel="alternative" href="/atom.xml" title="Absolute Zero" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!-- Google Analytics -->
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="/images/cat.png" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">xuehy</a></h1>
+		</hgroup>
+
+		
+		<p class="header-subtitle">The Garden of Zeros</p>
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						
+						<div class="icon-wrap icon-me hide" data-idx="3">
+							<div class="user"></div>
+							<div class="shoulder"></div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>標籤</li>
+						
+						
+						<li>關於</li>
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+							<li><a href="/categories/old">过去的旧文章</a></li>
+				        
+							<li><a href="/categories/computervision">计算机视觉</a></li>
+				        
+							<li><a href="/categories/passages">随笔</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/vision/" style="font-size: 10px;">vision</a> <a href="/tags/技术/" style="font-size: 10px;">技术</a>
+					</div>
+				</section>
+				
+				
+				
+
+				
+				
+				<section class="switch-part switch-part3">
+				
+					<div id="js-aboutme">Cogito ergo sum</div>
+				</section>
+				
+			</div>
+		</div>
+	</header>				
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide">xuehy</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+			
+				<img lazy-src="/images/cat.png" class="js-avatar">
+			
+			</div>
+			<hgroup>
+			  <h1 class="header-author">xuehy</h1>
+			</hgroup>
+			
+			<p class="header-subtitle">The Garden of Zeros</p>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+					<li><a href="/categories/old">过去的旧文章</a></li>
+		        
+					<li><a href="/categories/computervision">计算机视觉</a></li>
+		        
+					<li><a href="/categories/passages">随笔</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap"><article id="post-SSVM2" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/06/10/SSVM2/" class="article-date">
+  	<time datetime="2016-06-09T16:00:00.000Z" itemprop="datePublished">2016-06-10</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Structured SVM (2) Training
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+        
+	<div class="article-category tagcloud">
+	<a class="article-category-link" href="/categories/ml/">ml</a>
+	</div>
+
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Subgradient descent SSVM Training</a></li>
+<li><a href="#sec-2">2. &#x7EA6;&#x675F;&#x4E8C;&#x6B21;&#x4F18;&#x5316;</a></li>
+<li><a href="#sec-3">3. Dual SSVM</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Subgradient descent SSVM Training</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+&#x524D;&#x9762;&#x6211;&#x4EEC;&#x8BB2;&#x5230;&#xFF0C;&#x6C42;&#x89E3;SSVM&#x7684;&#x6700;&#x4F18;&#x53C2;&#x6570;&#x5C31;&#x662F;&#x6C42;&#x89E3;&#x5982;&#x4E0B;&#x7684;&#x4F18;&#x5316;&#x95EE;&#x9898;&#xFF1A;
+</p>
+
+<p>
+$$
+ \min_w \frac{1}{2}\|w\|^2 + \frac{C}{N}\sum_{n=1}^N [\max_{y\in \mathcal{Y}} \Delta(y^n, y) + g(x^n, y, w) - g(x^n, y^n, w)] 
+$$
+</p>
+
+<p>
+&#x8FD9;&#x4E2A;&#x76EE;&#x6807;&#x51FD;&#x6570;&#x867D;&#x7136;&#x662F;&#x51F8;&#x7684;&#xFF0C;&#x7136;&#x800C;&#x5374;&#x4E0D;&#x662F;&#x53EF;&#x5FAE;&#x7684;&#xFF0C;&#x56E0;&#x6B64;&#x6211;&#x4EEC;&#x65E0;&#x6CD5;&#x76F4;&#x63A5;&#x7528;&#x68AF;&#x5EA6;&#x4E0B;&#x964D;&#x6C42;&#x89E3;&#x3002;&#x5BF9;&#x4E8E;&#x4E00;&#x4E2A;&#x51F8;&#x51FD;&#x6570;&#xFF0C;&#x5982;&#x679C;&#x5B83;&#x4E0D;&#x662F;&#x8FDE;&#x7EED;&#x7684;&#xFF0C;&#x90A3;&#x4E48;&#x5B83;&#x7684;&#x68AF;&#x5EA6;&#x5C31;&#x4E0D;&#x5B58;&#x5728;&#xFF0C;&#x4F46;&#x662F;&#x4ECD;&#x7136;&#x5B58;&#x5728;&#x4E00;&#x4E2A;&#x53EB;&#x505A;&#x6B21;&#x68AF;&#x5EA6;&#xFF08;subgradient&#xFF09;&#x7684;&#x4E1C;&#x897F;&#x3002;
+</p>
+
+<blockquote>
+<dl class="org-dl">
+<dt> Subgradient </dt><dd>&#x5982;&#x679C; \(f:\mathbb{R}^d\rightarrow \mathbb{R}\) &#x662F;&#x4E00;&#x4E2A;&#x51F8;&#x51FD;&#x6570;&#xFF0C;&#x4E0D;&#x4E00;&#x5B9A;&#x53EF;&#x5FAE;&#xFF0C;&#x90A3;&#x4E48;&#x4E00;&#x4E2A;&#x5411;&#x91CF; \(v\in \mathbb{R}^d\) &#x79F0;&#x4F5C; \(f\) &#x5728; \(w_0\) &#x5904;&#x7684;&#x6B21;&#x68AF;&#x5EA6;&#xFF0C;&#x5982;&#x679C;&#x5B83;&#x6EE1;&#x8DB3;
+\(f(w) \ge f(w_0) + \langle v, w - w_0 \rangle \; \forall w\)
+</dd>
+</dl>
+</blockquote>
+
+<p>
+&#x57FA;&#x4E8E;subgradient&#xFF0C;&#x4E5F;&#x5B58;&#x5728;&#x6700;&#x4F18;&#x5316;&#x7B97;&#x6CD5;&#x53EB;&#x505A;subgradient descent&#xFF0C;&#x672C;&#x8D28;&#x4E0A;&#x5C31;&#x662F;&#x62FF;subgradient&#x7684;&#x8D1F;&#x65B9;&#x5411;&#x4F5C;&#x4E3A;&#x4E0B;&#x964D;&#x65B9;&#x5411;&#xFF0C;&#x5177;&#x4F53;&#x6D41;&#x7A0B;&#x548C;gradient descent&#x6CA1;&#x6709;&#x533A;&#x522B;&#xFF0C;&#x4F46;&#x662F;&#x95EE;&#x9898;&#x5728;&#x4E8E;&#xFF0C;subgradient&#x4ECE;&#x54EA;&#x91CC;&#x6765;&#xFF0C;&#x6211;&#x4EEC;&#x5982;&#x4F55;&#x8BA1;&#x7B97;&#x5F97;&#x5230;&#x4E00;&#x4E2A;subgradient&#x5462;&#xFF1F;
+</p>
+
+<p>
+&#x8BB0;
+</p>
+
+<p>
+$$\mathcal{l}^n(w) = \max_{y\in \mathcal{Y}} \Delta(y^n, y) + g(x^n, y, w) - g(x^n, y^n, w)$$
+</p>
+
+<a id="more"></a>                                                                                                                                                                                              
+
+<p>
+$$
+\mathcal{l}^n_y(w) =  \Delta(y^n, y) + g(x^n, y, w) - g(x^n, y^n, w)
+$$
+</p>
+
+<p>
+&#x6BCF;&#x4E2A; \(\mathcal{l}^n_y(w)\) &#x90FD;&#x662F;&#x7EBF;&#x6027;&#x51FD;&#x6570;&#xFF0C;&#x6240;&#x4EE5;&#x5BF9;&#x4E8E; \(\mathcal{l}^n(w) = \max_y \mathcal{l}^n_y\) , &#x5176;&#x5B9E;&#x5C31;&#x662F;&#x4E00;&#x5806;&#x7EBF;&#x6027;&#x51FD;&#x6570;&#x7684;&#x6700;&#x5927;&#x503C;&#xFF0C;&#x4E8E;&#x662F;&#x5728; \(w_0\) &#x5904;&#x7684;&#x6B21;&#x68AF;&#x5EA6;&#x5C31;&#x53EF;&#x4EE5;&#x53D6;&#x8FD9;&#x4E2A;&#x70B9;&#x5904;&#x6700;&#x5927;&#x7684;&#x7EBF;&#x6027;&#x51FD;&#x6570; \(\mathcal{l}^n_y\) &#x5BF9;&#x5E94;&#x7684;&#x68AF;&#x5EA6;&#x3002;
+</p>
+
+<p>
+&#x603B;&#x7ED3;&#x4E00;&#x4E0B;&#xFF0C;&#x5BF9;&#x4E8E; \(\mathcal{l}^n\) &#x5728; \(w_0\) &#x5904;&#x7684;&#x6B21;&#x68AF;&#x5EA6;&#xFF0C;&#x6211;&#x4EEC;&#x5148;&#x627E;&#x5230;&#x6700;&#x5927;&#x7684;(&#x4E5F;&#x5C31;&#x662F;&#x5728; \(\mathcal{l}^n(w_o)\) &#x4E2D;&#x751F;&#x6548;&#x7684;) $\hat{y}$&#xFF0C;
+$$
+\hat{y} = \arg\max_{y\in \mathcal{Y}} \Delta(y^n,y) + \langle w, \phi(x^n,y) \rangle - \langle w, \phi(x^n, y^n) \rangle
+$$
+</p>
+
+<p>
+&#x7136;&#x540E;&#x53D6;&#x6B21;&#x68AF;&#x5EA6; 
+</p>
+\begin{equation}
+\begin{aligned}
+v^n &amp; = \nabla \mathcal{l}^n_\hat{y}(w_0) \\
+  &amp; = \nabla g(x^n, \hat{y}, w_0) - \nabla g(x^n,y^n,w_0) \; \text{&#x6CE8;&#x610F;&#x5230;} g(x,y,w) = \langle w, \phi(x,y) \rangle\\
+  &amp; = \phi(x^n,\hat{y}) - \phi(x^n,y^n)
+\end{aligned}
+\end{equation}
+
+<p>
+&#x56E0;&#x6B64;subgradient descent&#x7684;&#x90A3;&#x4E00;&#x6B65;&#x53EF;&#x4EE5;&#x5199;&#x6210;
+$$
+w \leftarrow w - \eta_t(w + \frac{C}{N}\sum_nv^n)
+$$
+</p>
+
+<p>
+<b>&#x6CE8;&#x610F;&#x5230;&#x6BCF;&#x6B21;&#x66F4;&#x65B0;$w$&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6211;&#x4EEC;&#x9700;&#x8981;N&#x6B21;argmax&#x64CD;&#x4F5C;</b> &#xFF0C;&#x56E0;&#x6B64;&#x8FD9;&#x4E2A;&#x65B9;&#x6CD5;&#x7684;&#x901F;&#x5EA6;&#x5F80;&#x5F80;&#x6BD4;&#x8F83;&#x6162;&#x3002;
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> &#x7EA6;&#x675F;&#x4E8C;&#x6B21;&#x4F18;&#x5316;</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+&#x4E4B;&#x524D;&#x6211;&#x4EEC;&#x63D0;&#x5230;&#x8FC7;SSVM&#x7684;&#x7B49;&#x4EF7;&#x5F62;&#x5F0F;&#xFF1A;
+$$                                                                                                                                                                                                          
+\min_{w,\xi} \frac{1}{2}\|w\|^2 + \frac{C}{N}\sum_{n=1}^N\xi^n                                                                                                                                             
+$$                                                                                                                                                                                                          
+</p>
+
+<p>
+&#x4F7F;&#x5F97;                                                                                                                                                                                                        
+$$                                                                                                                                                                                                          
+ \langle w, \phi(x^n,y^n) \rangle - \langle w, \phi(x^n, y) \rangle \ge \Delta(y^n,y) - \xi^n, \; n = 1,\cdots, N, \; \forall y \in \mathcal{Y}                                                              
+$$      
+</p>
+
+<p>
+&#x5F15;&#x5165;&#x7279;&#x5F81;&#x5411;&#x91CF; \(\delta\phi(x^n,y^n,y) = \phi(x^n,y^n) - \phi(x^n,y)\)
+</p>
+
+<p>
+&#x8FD9;&#x4E2A;&#x95EE;&#x9898;&#x53EF;&#x4EE5;&#x5199;&#x6210;
+$$                                                                                                                                                                                                             
+\min_{w \in \mathbb{R}^d,\xi \in \mathbb{R}^n_{+}} \frac{1}{2}\|w\|^2 + \frac{C}{N}\sum_{n=1}^N\xi^n                                                                                                                                                
+$$      
+</p>
+
+<p>
+\(\forall y \in \mathcal{Y}\) and $ i = 1, &#x22EF;, N$
+$$
+\langle w, \delta\phi(x^n,y^n,y) \rangle \ge \Delta(y^n, y) - \xi^n
+$$
+</p>
+
+<p>
+&#x8FD9;&#x662F;&#x4E00;&#x4E2A;&#x5E26;&#x7EBF;&#x6027;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x7684;&#x4E8C;&#x6B21;&#x4F18;&#x5316;&#x95EE;&#x9898;&#x3002;&#x7136;&#x800C;&#x6211;&#x4EEC;&#x5374;&#x4E0D;&#x80FD;&#x7528;&#x666E;&#x901A;&#x7684;&#x4E8C;&#x6B21;&#x89C4;&#x5212;&#x7B97;&#x6CD5;&#x6765;&#x6C42;&#x89E3;&#xFF0C;&#x56E0;&#x4E3A;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x6570;&#x91CF;&#x5B9E;&#x5728;&#x662F;&#x592A;&#x5E9E;&#x5927;&#x4E86;( \(N|\mathcal{Y}|\) ).
+</p>
+
+<p>
+&#x4E8E;&#x662F;&#x4EBA;&#x4EEC;&#x60F3;&#x51FA;&#x4E86;&#x4E00;&#x4E2A;&#x53EB;working set training&#x7684;&#x65B9;&#x6CD5;&#xFF0C;&#x4ECE;&#x6CA1;&#x6709;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x5F00;&#x59CB;&#xFF0C;&#x9010;&#x6E10;&#x52A0;&#x5165;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x6C42;&#x89E3;&#x6700;&#x4F18;&#x95EE;&#x9898;&#xFF0C;&#x4ECE;&#x800C;&#x907F;&#x514D;&#x5728;&#x5168;&#x90E8;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x4E0A;&#x8FDB;&#x884C;&#x8BA1;&#x7B97;&#x3002;
+</p>
+
+<p>
+&#x5177;&#x4F53;&#x65B9;&#x6CD5;&#x5C31;&#x662F;:
+</p>
+
+<ul class="org-ul">
+<li>&#x4EE4;working set \(S = \emptyset\) &#xFF0C;
+</li>
+<li>&#x53EA;&#x7528;$S$&#x4E2D;&#x7684;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x6C42;&#x89E3;&#x4E8C;&#x6B21;&#x4F18;&#x5316;&#x95EE;&#x9898;&#xFF0C;&#x5F97;&#x5230; \((w,\xi)\) &#x3002;
+</li>
+<li>&#x5BF9;&#x6BCF;&#x4E00;&#x4E2A;sample \(n = 1&#xFF0C;\cdots, N\) &#xFF0C;&#x6211;&#x4EEC;&#x627E;&#x5230;&#x5BF9;&#x6700;&#x4F18;&#x89E3;&#x800C;&#x8A00;&#x4EA7;&#x751F;&#x6548;&#x679C;&#x7684; \(\hat{y}\)
+</li>
+</ul>
+
+<p>
+$$
+\hat{y} \leftarrow \arg\max_{y\in \mathcal{Y}} \Delta(y^n,y) + \langle w, \phi(x^n,y) \rangle
+$$
+</p>
+<ul class="org-ul">
+<li>&#x5982;&#x679C; \(\hat{y} \ne y^n\) &#xFF0C;&#x8BF4;&#x660E;&#x6700;&#x4F18;&#x89E3;&#x8FDD;&#x53CD;&#x4E86;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#xFF0C;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x628A;&#x8FD9;&#x4E2A;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x52A0;&#x5165;working set&#xFF0C; \(S \leftarrow \{(x^n, \hat{y})\}\)
+</li>
+</ul>
+
+<p>
+&#x5982;&#x6B64;&#x76F4;&#x5230;&#x6536;&#x655B;&#x3002;
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Dual SSVM</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+&#x4E0E;&#x666E;&#x901A;&#x7684;SVM&#x76F8;&#x540C;&#xFF0C;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;SSVM&#x7684;&#x5BF9;&#x5076;&#x95EE;&#x9898;&#x6C42;&#x5F97;&#x539F;&#x95EE;&#x9898;&#x7684;&#x89E3;&#x3002;
+</p>
+
+<p>
+&#x6CE8;&#x610F;&#x5230;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x53EF;&#x4EE5;&#x5199;&#x6210;
+$$
+ \Delta(y^n, y) - \xi^n - \langle w, \delta\phi(x^n,y^n,y) \rangle \le 0
+$$
+</p>
+
+<p>
+&#x5229;&#x7528;&#x62C9;&#x683C;&#x6717;&#x65E5;&#x4E58;&#x5B50;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x5F97;&#x5230;
+$$
+L(w,\xi,\alpha) = \frac{1}{2}\|w\|^2 + \frac{C}{N}\sum_{n=1}^N\xi^n + \sum_{n,y} \alpha_{ny} [\Delta(y^n, y) - \xi^n - \langle w, \delta\phi(x^n,y^n,y) \rangle]
+$$
+</p>
+
+<p>
+&#x8FD9;&#x4E2A;&#x65F6;&#x5019;&#x5BF9; \(w\) &#x548C; \(\xi\) &#x5728;&#x6574;&#x4E2A;&#x5B9A;&#x4E49;&#x57DF;&#x4E0A;&#x6C42;&#x6700;&#x5C0F;&#x503C;, \(\frac{\partial L}{\partial w} = 0\) &#x4EE5;&#x53CA; \(\frac{\partial L}{\partial \xi^n} = 0\) ,&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x5F97;&#x5230;
+</p>
+
+<p>
+$$
+w = \sum_{n,y}\alpha_{ny}\delta\phi(x^n,y^n,y)
+$$
+</p>
+
+<p>
+&#x6CE8;&#x610F;&#x5230; \(\frac{\partial L}{\partial \xi^n} = \frac{C}{N} - \sum_{y}\alpha_{ny}\) ,&#x4E3A;&#x4E86;&#x4F7F;&#x6700;&#x5C0F;&#x503C;&#x5B58;&#x5728;&#xFF0C;&#x5FC5;&#x987B;&#x4F7F;&#x5F97; \(L\) &#x5BF9; \(\xi^n\) &#x800C;&#x8A00;&#x9012;&#x589E;(&#x8FD9;&#x6837;&#x624D;&#x80FD;&#x5728; \(\xi\) &#x53D6;0&#x7684;&#x65F6;&#x5019;&#x5F97;&#x5230;&#x6700;&#x5C0F;&#x503C;)&#xFF0C;&#x6240;&#x4EE5;
+</p>
+
+<p>
+$$
+\sum_{y}\alpha_{ny} \le \frac{C}{N}
+$$
+</p>
+
+<p>
+&#x6B64;&#x65F6; 
+</p>
+
+<p>
+$$
+L(\alpha) = \sum_{ny}\Delta(y^n,y) - \frac{1}{2}\sum_{n,y}\sum_{\bar{n},\bar{y}}\alpha_{ny}\alpha_{\bar{n}\bar{y}}\langle \delta\phi(x^n,y^n,y), \delta\phi(x^\bar{n},y^\bar{n},\bar{y}) \rangle
+$$
+</p>
+
+<p>
+&#x56E0;&#x6B64;&#x5BF9;&#x5076;&#x95EE;&#x9898;&#x4E3A;
+$$
+\max_{\alpha \in \mathbb{R}^{n|\mathcal{Y}|}_{+}} \sum_{ny}\Delta(y^n,y) - \frac{1}{2}\sum_{n,y}\sum_{\bar{n},\bar{y}}\alpha_{ny}\alpha_{\bar{n}\bar{y}}\langle \delta\phi(x^n,y^n,y), \delta\phi(x^\bar{n},y^\bar{n},\bar{y}) \rangle 
+$$
+</p>
+
+<p>
+&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x4E3A;
+$$
+\sum_{y}\alpha_{ny} \le \frac{C}{N}     
+$$
+</p>
+
+<p>
+&#x8FD9;&#x4E00;&#x6B21;&#x6211;&#x4EEC;&#x6CE8;&#x610F;&#x5230;&#x7EA6;&#x675F;&#x6761;&#x4EF6;&#x7684;&#x4E2A;&#x6570;&#x662F; \(N\) &#xFF0C;&#x4F46;&#x662F;&#x53D8;&#x91CF;&#x7684;&#x4E2A;&#x6570;&#x53D8;&#x5F97;&#x8FC7;&#x4E8E;&#x5E9E;&#x5927;&#x3002;&#x8FD9;&#x4E00;&#x6B21;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x5BF9; \(\alpha_{ny}\) &#x4F7F;&#x7528;working set&#x65B9;&#x6CD5;&#x3002;
+</p>
+</div>
+</div>
+
+<p class="date">Date: <span class="timestamp-wrapper"><span class="timestamp">&lt;2016-06-10&gt;</span></span></p>
+<p class="author">Author: xuehy</p>
+<p class="date">Created: 2016-07-26 &#x4E8C; 21:25</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/" target="_blank" rel="external">Emacs</a> 24.5.1 (<a href="http://orgmode.org" target="_blank" rel="external">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer" target="_blank" rel="external">Validate</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/06/17/deformable_surface/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          基于模板的可形变曲面跟踪简介（一） 概述
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/10/SSVM/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Structured SVM (1)</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="share_jia">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">分享到: &nbsp; </span>
+		<a class="jiathis_button_facebook"></a> 
+    <a class="jiathis_button_twitter"></a>
+    <a class="jiathis_button_plus"></a> 
+    <a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+    <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+
+
+
+
+
+
+<!-- 多说评论框 start -->
+     <div class="ds-thread" data-thread-key="2016/06/10/SSVM2/" data-title="Structured SVM (2) Training" data-url="http://yoursite.com/2016/06/10/SSVM2/"></div>
+     <!-- 多说评论框 end -->
+     <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+     <script type="text/javascript">
+     var duoshuoQuery = {short_name:"hyxue-zeros"};
+     	 (function() {
+			var ds = document.createElement('script');
+			       ds.type = 'text/javascript';ds.async = true;
+			       	       	 ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+					 	  ds.charset = 'UTF-8';
+						  	       (document.getElementsByTagName('head')[0]
+									 || document.getElementsByTagName('body')[0]).appendChild(ds);
+									    })();
+										</script>
+										<!-- 多说公共JS代码 end -->
+										</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-right">
+    		&copy; 2016 xuehy
+    	</div>
+     
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false
+	}
+</script>
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js" type="text/javascript"></script>
+<script src="/js/main.js" type="text/javascript"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-51165937-2', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+  </div>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
